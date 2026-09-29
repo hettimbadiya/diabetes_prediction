@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Environment variables
+.env
+
+# Trained model cache (regenerated from dataset)
+model_cache.joblib
+
+# Prediction history (session data)
+prediction_history.json
+
+# Dataset (may contain sensitive data)
+# diabetes_prediction_dataset.csv  # Uncomment to exclude
+
+# IDE files
+.vscode/
+.idea/
+*.suo
+*.user
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log

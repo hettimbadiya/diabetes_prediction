@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DiabetesCare AI — Clinical Machine Learning Diagnostics</title>
+  <meta name="description" content="State-of-the-art Diabetes Risk Prediction powered by Support Vector Machines (SVC) and Multi-Model Comparative ML Architecture.">
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Chart.js for Interactive Visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Application Stylesheet -->
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="theme-dark">
+
+  <!-- ============================================================
+       1. AUTHENTICATION VIEW (LOGIN SCREEN)
+       ============================================================ -->
+  <div id="auth-view" class="auth-wrapper">
+    <div class="auth-container">
+      <!-- Left Hero Panel -->
+      <div class="auth-hero-panel">
+        <div class="auth-hero-content">
+          <div class="auth-logo-badge">
+            <i class="fa-solid fa-heart-pulse"></i>
+            <span>DiabetesCare AI</span>
+          </div>
+          <h1 class="auth-hero-title">Precision AI for Diabetes Risk Stratification</h1>
+          <p class="auth-hero-subtitle">
+            Powered by scikit-learn Support Vector Classification (SVC) trained on clinical biomarker profiles.
+          </p>
+          
+          <div class="auth-feature-list">
+            <div class="auth-feature-item">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>High-accuracy SVC, Random Forest & multi-model evaluation</span>
+            </div>
+            <div class="auth-feature-item">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Instant standard-scaled biomarker parameter inference</span>
+            </div>
+            <div class="auth-feature-item">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Comprehensive patient assessment & audit history</span>
+            </div>
+          </div>
+
+          <div class="auth-medical-disclaimer-pill">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>Educational ML Demonstration &bull; Research-grade System</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Login Form Card -->
+      <div class="auth-form-panel">
+        <div class="auth-form-card">
+          <div class="auth-header">
+            <h2>Welcome Back</h2>
+            <p>Sign in to access the clinical prediction dashboard</p>
+          </div>
+
+          <!-- Quick Demo Logins -->
+          <div class="demo-logins-section">
+            <span class="demo-label">Quick Demo Access:</span>
+            <div class="demo-buttons-row">
+              <button type="button" class="btn-demo-fill" onclick="fillDemoCredentials('admin@diabetescare.ai', 'password123')">
+                <i class="fa-solid fa-user-doctor"></i> Dr. Mitchell (Lead)
+              </button>
+              <button type="button" class="btn-demo-fill" onclick="fillDemoCredentials('demo@diabetescare.ai', 'demo')">
+                <i class="fa-solid fa-stethoscope"></i> Demo Clinician
+              </button>
+            </div>
+          </div>
+
+          <div class="auth-divider"><span>or sign in with credentials</span></div>
+
+          <form id="login-form" onsubmit="handleLogin(event)">
+            <div id="login-alert" class="alert alert-error" style="display: none;"></div>
+
+            <div class="form-group">
+              <label for="login-email"><i class="fa-solid fa-envelope"></i> Email or Username</label>
+              <input type="email" id="login-email" class="form-control" placeholder="e.g., admin@diabetescare.ai" required>
+            </div>
+
+            <div class="form-group">
+              <label for="login-password"><i class="fa-solid fa-lock"></i> Password</label>
+              <div class="password-input-wrapper">
+                <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+                <button type="button" class="btn-toggle-pwd" onclick="togglePasswordVisibility('login-password', 'pwd-toggle-icon')" title="Show/Hide Password">
+                  <i id="pwd-toggle-icon" class="fa-regular fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-meta-row">
+              <label class="checkbox-container">
+                <input type="checkbox" id="remember-me" checked>
+                <span class="checkmark"></span>
+                <span class="checkbox-label">Remember me</span>
+              </label>
+              <a href="#" class="link-forgot" onclick="alert('Demo Mode: Use quick demo buttons above or demo@diabetescare.ai / demo'); return false;">Forgot password?</a>
+            </div>
+
+            <button type="submit" id="btn-login-submit" class="btn btn-primary btn-block">
+              <span class="btn-text"><i class="fa-solid fa-right-to-bracket"></i> Sign In to Dashboard</span>
+              <span class="btn-loader" style="display: none;"><i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...</span>
+            </button>
+          </form>
+
+          <div class="auth-footer-note">
+            <span>Powered by DiabetesCare ML Engine v2.4</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       2. MAIN DASHBOARD APPLICATION
+       ============================================================ -->
+  <div id="app-view" class="app-layout" style="display: none;">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <i class="fa-solid fa-heart-pulse"></i>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">DiabetesCare</span>
+          <span class="brand-badge">AI CLINICAL</span>
+        </div>
+      </div>
+
+      <div class="sidebar-status-chip">
+        <span class="status-pulse-dot"></span>
+        <span class="status-chip-text">ML Model: <strong>SVC Active</strong></span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-link active" onclick="switchTab('dashboard')" id="nav-dashboard">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-link" onclick="switchTab('predict')" id="nav-predict">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <span>Diabetes Prediction</span>
+          <span class="nav-pill-new">Predict</span>
+        </button>
+        <button class="nav-link" onclick="switchTab('history')" id="nav-history">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span>Prediction History</span>
+          <span class="nav-count-badge" id="sidebar-history-count">0</span>
+        </button>
+        <button class="nav-link" onclick="switchTab('performance')" id="nav-performance">
+          <i class="fa-solid fa-chart-column"></i>
+          <span>Model Performance</span>
+        </button>
+        <button class="nav-link" onclick="switchTab('about')" id="nav-about">
+          <i class="fa-solid fa-circle-info"></i>
+          <span>About &amp; Research</span>
+        </button>
+      </nav>
+
+      <!-- Sidebar User Card -->
+      <div class="sidebar-footer">
+        <div class="user-profile-widget">
+          <div class="user-avatar" id="user-avatar-initials">DM</div>
+          <div class="user-info">
+            <span class="user-name" id="user-display-name">Dr. Mitchell</span>
+            <span class="user-role" id="user-display-role">Lead Clinician</span>
+          </div>
+          <button class="btn-logout" onclick="handleLogout()" title="Logout">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Container -->
+    <main class="app-main-content">
+      
+      <!-- Top Navbar -->
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="btn-sidebar-toggle" onclick="toggleSidebar()" title="Toggle Menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="breadcrumbs">
+            <span class="breadcrumb-root">DiabetesCare AI</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span class="breadcrumb-current" id="current-page-title">Dashboard</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="topbar-chip">
+            <i class="fa-solid fa-database"></i>
+            <span id="topbar-dataset-count">Dataset: 100,000 Records</span>
+          </div>
+          <button class="btn btn-sm btn-outline-primary" onclick="switchTab('predict')">
+            <i class="fa-solid fa-plus"></i> New Prediction
+          </button>
+        </div>
+      </header>
+
+      <div class="view-content-wrapper">
+
+        <!-- ============================================================
+             TAB 1: DASHBOARD OVERVIEW
+             ============================================================ -->
+        <section id="tab-dashboard" class="tab-pane active">
+          
+          <!-- Hero Welcome Banner -->
+          <div class="dashboard-hero-card">
+            <div class="hero-left">
+              <span class="hero-badge"><i class="fa-solid fa-sparkles"></i> AI Health Assessment</span>
+              <h2>Welcome, <span id="dash-greeting-name">Doctor</span></h2>
+              <p>Predict diabetes risk using standard-scaled clinical biomarkers and support vector classification.</p>
+              <div class="hero-actions">
+                <button class="btn btn-primary" onclick="switchTab('predict')">
+                  <i class="fa-solid fa-notes-medical"></i> Start New Prediction
+                </button>
+                <button class="btn btn-secondary" onclick="switchTab('performance')">
+                  <i class="fa-solid fa-chart-line"></i> View Model Benchmarks
+                </button>
+              </div>
+            </div>
+            <div class="hero-right-stats">
+              <div class="hero-stat-pill">
+                <span class="pill-title">Active Algorithm</span>
+                <span class="pill-value">Support Vector Machine</span>
+              </div>
+              <div class="hero-stat-pill">
+                <span class="pill-title">Preprocessing</span>
+                <span class="pill-value">StandardScaler + LabelEncoder</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 Stat Summary Cards -->
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-icon-box icon-purple">
+                <i class="fa-solid fa-clipboard-check"></i>
+              </div>
+              <div class="metric-data">
+                <span class="metric-label">Session Predictions</span>
+                <h3 class="metric-number" id="dash-total-predictions">0</h3>
+                <span class="metric-subtext"><i class="fa-solid fa-arrow-trend-up"></i> Real-time audit log</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-icon-box icon-emerald">
+                <i class="fa-solid fa-bullseye"></i>
+              </div>
+              <div class="metric-data">
+                <span class="metric-label">SVC Model Accuracy</span>
+                <h3 class="metric-number" id="dash-svc-accuracy">--%</h3>
+                <span class="metric-subtext text-emerald"><i class="fa-solid fa-check"></i> Verified on Test Split</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-icon-box icon-cyan">
+                <i class="fa-solid fa-layer-group"></i>
+              </div>
+              <div class="metric-data">
+                <span class="metric-label">Training Records</span>
+                <h3 class="metric-number" id="dash-training-rows">--</h3>
+                <span class="metric-subtext"><i class="fa-solid fa-filter"></i> Duplicates Filtered</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-icon-box icon-rose">
+                <i class="fa-solid fa-heart-crack"></i>
+              </div>
+              <div class="metric-data">
+                <span class="metric-label">High Risk Cases Identified</span>
+                <h3 class="metric-number" id="dash-diabetic-count">0</h3>
+                <span class="metric-subtext text-rose"><i class="fa-solid fa-triangle-exclamation"></i> Flagged for review</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dashboard Charts & Quick Assessment Row -->
+          <div class="dashboard-split-grid">
+            
+            <!-- Quick Action Card -->
+            <div class="card glass-card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title"><i class="fa-solid fa-bolt"></i> Quick Patient Triage</h3>
+                  <p class="card-subtitle">Select a preset to test the model immediately</p>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="quick-preset-list" id="dashboard-preset-container">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Model Comparison Mini Chart -->
+            <div class="card glass-card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title"><i class="fa-solid fa-chart-bar"></i> Multi-Model Accuracy Benchmark</h3>
+                  <p class="card-subtitle">Comparison across 6 classification architectures</p>
+                </div>
+                <button class="btn-text-link" onclick="switchTab('performance')">View Full Report &rarr;</button>
+              </div>
+              <div class="card-body chart-container-sm">
+                <canvas id="dashModelChart"></canvas>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Recent Predictions Table -->
+          <div class="card glass-card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title"><i class="fa-solid fa-clock"></i> Recent Patient Predictions</h3>
+                <p class="card-subtitle">Latest diagnostic predictions performed in the system</p>
+              </div>
+              <button class="btn btn-sm btn-outline-secondary" onclick="switchTab('history')">View All History</button>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table" id="dash-recent-table">
+                  <thead>
+                    <tr>
+                      <th>Time</th>
+                      <th>Patient Profile</th>
+                      <th>BMI (kg/m²)</th>
+                      <th>HbA1c</th>
+                      <th>Blood Glucose</th>
+                      <th>Prediction</th>
+                      <th>Risk Level</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dash-recent-tbody">
+                    <tr>
+                      <td colspan="7" class="text-center text-muted py-4">
+                        <i class="fa-regular fa-folder-open"></i> No predictions made yet. Click "Start New Prediction" to assess a patient.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ============================================================
+             TAB 2: DIABETES PREDICTION FORM & RESULT
+             ============================================================ -->
+        <section id="tab-predict" class="tab-pane">
+          
+          <div class="prediction-page-header">
+            <div>
+              <h2><i class="fa-solid fa-dna text-cyan"></i> Clinical Diabetes Risk Assessment</h2>
+              <p>Enter patient physiological parameters and laboratory biomarkers. Features are automatically preprocessed with StandardScaler and evaluated by the Support Vector Machine (SVC) model.</p>
+            </div>
+
+            <!-- 1-Click Preset Patient Loader -->
+            <div class="preset-pill-bar">
+              <span class="preset-pill-label"><i class="fa-solid fa-flask"></i> Load Sample Patient:</span>
+              <button type="button" class="btn-preset-chip" onclick="loadSamplePreset('sample-healthy')">
+                <span class="dot dot-green"></span> Healthy Patient
+              </button>
+              <button type="button" class="btn-preset-chip" onclick="loadSamplePreset('sample-prediabetic')">
+                <span class="dot dot-yellow"></span> Borderline / Prediabetic
+              </button>
+              <button type="button" class="btn-preset-chip" onclick="loadSamplePreset('sample-diabetic')">
+                <span class="dot dot-red"></span> High-Risk Diabetic
+              </button>
+            </div>
+          </div>
+
+          <div class="prediction-layout-grid">
+            
+            <!-- Left: Clinical Input Form -->
+            <div class="card glass-card form-card-wrapper">
+              <div class="card-header border-bottom">
+                <h3 class="card-title"><i class="fa-solid fa-user-pen"></i> Patient Diagnostic Parameters</h3>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="resetPredictionForm()">
+                  <i class="fa-solid fa-rotate-left"></i> Clear Form
+                </button>
+              </div>
+
+              <form id="diabetes-form" onsubmit="handlePredictionSubmit(event)" class="card-body">
+                <div id="predict-form-alert" class="alert alert-error" style="display: none;"></div>
+
+                <div class="form-section-title">
+                  <i class="fa-solid fa-id-card-clip"></i> Demographic &amp; Medical History
+                </div>
+
+                <div class="form-grid-2">
+                  <!-- Gender -->
+                  <div class="form-group">
+                    <label for="input-gender" class="form-label">
+                      Gender <span class="required">*</span>
+                    </label>
+                    <select id="input-gender" class="form-control" required>
+                      <option value="Female">Female</option>
+                      <option value="Male" selected>Male</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <span class="form-hint">Matches dataset categorical classes</span>
+                  </div>
+
+                  <!-- Age -->
+                  <div class="form-group">
+                    <label for="input-age" class="form-label">
+                      Age <span class="required">*</span>
+                      <span class="field-badge" id="age-badge">Adult</span>
+                    </label>
+                    <div class="input-with-unit">
+                      <input type="number" id="input-age" class="form-control" min="0" max="125" step="1" placeholder="e.g. 45" value="45" required oninput="updateAgeBadge()">
+                      <span class="input-unit">Years</span>
+                    </div>
+                    <span class="form-hint">Valid range: 0 - 120 years</span>
+                  </div>
+                </div>
+
+                <div class="form-grid-2">
+                  <!-- Hypertension -->
+                  <div class="form-group">
+                    <label class="form-label">Hypertension History <span class="required">*</span></label>
+                    <div class="segmented-control">
+                      <input type="radio" name="hypertension" id="ht-no" value="0" checked>
+                      <label for="ht-no"><i class="fa-solid fa-xmark"></i> No</label>
+                      <input type="radio" name="hypertension" id="ht-yes" value="1">
+                      <label for="ht-yes"><i class="fa-solid fa-check"></i> Yes (Diagnosed)</label>
+                    </div>
+                    <span class="form-hint">High blood pressure diagnosis</span>
+                  </div>
+
+                  <!-- Heart Disease -->
+                  <div class="form-group">
+                    <label class="form-label">Heart Disease History <span class="required">*</span></label>
+                    <div class="segmented-control">
+                      <input type="radio" name="heart_disease" id="hd-no" value="0" checked>
+                      <label for="hd-no"><i class="fa-solid fa-xmark"></i> No</label>
+                      <input type="radio" name="heart_disease" id="hd-yes" value="1">
+                      <label for="hd-yes"><i class="fa-solid fa-check"></i> Yes (Diagnosed)</label>
+                    </div>
+                    <span class="form-hint">Coronary or cardiac conditions</span>
+                  </div>
+                </div>
+
+                <!-- Smoking History -->
+                <div class="form-group">
+                  <label for="input-smoking" class="form-label">
+                    Smoking History <span class="required">*</span>
+                  </label>
+                  <select id="input-smoking" class="form-control" required>
+                    <option value="never" selected>Never Smoked</option>
+                    <option value="No Info">No Info / Unknown</option>
+                    <option value="former">Former Smoker (Quit)</option>
+                    <option value="current">Current Smoker</option>
+                    <option value="ever">Ever Smoked</option>
+                    <option value="not current">Not Current Smoker</option>
+                  </select>
+                  <span class="form-hint">Dataset encoded category</span>
+                </div>
+
+                <div class="form-section-title mt-4">
+                  <i class="fa-solid fa-stethoscope"></i> Clinical Biomarkers &amp; Laboratory Metrics
+                </div>
+
+                <div class="form-grid-3">
+                  <!-- BMI -->
+                  <div class="form-group">
+                    <label for="input-bmi" class="form-label">
+                      Body Mass Index (BMI) <span class="required">*</span>
+                      <span class="field-badge" id="bmi-badge">Normal</span>
+                    </label>
+                    <div class="input-with-unit">
+                      <input type="number" id="input-bmi" class="form-control" min="10" max="90" step="0.01" placeholder="e.g. 26.5" value="27.32" required oninput="updateBmiBadge()">
+                      <span class="input-unit">kg/m²</span>
+                    </div>
+                    <span class="form-hint">Normal: 18.5 - 24.9</span>
+                  </div>
+
+                  <!-- HbA1c -->
+                  <div class="form-group">
+                    <label for="input-hba1c" class="form-label">
+                      HbA1c Level <span class="required">*</span>
+                      <span class="field-badge" id="hba1c-badge">Normal</span>
+                    </label>
+                    <div class="input-with-unit">
+                      <input type="number" id="input-hba1c" class="form-control" min="3.0" max="18.0" step="0.1" placeholder="e.g. 5.7" value="5.8" required oninput="updateHba1cBadge()">
+                      <span class="input-unit">%</span>
+                    </div>
+                    <span class="form-hint">&lt;5.7% Normal | &ge;6.5% Diabetic</span>
+                  </div>
+
+                  <!-- Blood Glucose -->
+                  <div class="form-group">
+                    <label for="input-glucose" class="form-label">
+                      Blood Glucose Level <span class="required">*</span>
+                      <span class="field-badge" id="glucose-badge">Normal</span>
+                    </label>
+                    <div class="input-with-unit">
+                      <input type="number" id="input-glucose" class="form-control" min="40" max="450" step="1" placeholder="e.g. 130" value="130" required oninput="updateGlucoseBadge()">
+                      <span class="input-unit">mg/dL</span>
+                    </div>
+                    <span class="form-hint">&lt;140 mg/dL Normal</span>
+                  </div>
+                </div>
+
+                <!-- Form Submit Buttons -->
+                <div class="form-submit-row">
+                  <button type="button" class="btn btn-secondary" onclick="resetPredictionForm()">
+                    <i class="fa-solid fa-trash-can"></i> Clear
+                  </button>
+                  <button type="submit" id="btn-predict-submit" class="btn btn-primary btn-lg flex-grow">
+                    <span class="btn-text"><i class="fa-solid fa-microchip"></i> Run AI Diabetes Prediction</span>
+                    <span class="btn-loader" style="display: none;"><i class="fa-solid fa-circle-notch fa-spin"></i> Processing Model Inference...</span>
+                  </button>
+                </div>
+
+              </form>
+            </div>
+
+            <!-- Right: Prediction Result Display Panel -->
+            <div class="prediction-result-panel">
+              
+              <!-- Placeholder State when no prediction has been run -->
+              <div id="result-placeholder" class="card glass-card result-placeholder-card">
+                <div class="placeholder-content">
+                  <div class="placeholder-icon-ring">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                  </div>
+                  <h3>Awaiting Patient Biomarkers</h3>
+                  <p>Complete the diagnostic form on the left or select a sample patient above, then click <strong>"Run AI Diabetes Prediction"</strong>.</p>
+                  
+                  <div class="placeholder-tips">
+                    <div class="tip-item">
+                      <i class="fa-solid fa-shield-check text-cyan"></i>
+                      <span>StandardScaler feature transformation</span>
+                    </div>
+                    <div class="tip-item">
+                      <i class="fa-solid fa-brain text-purple"></i>
+                      <span>Support Vector Classifier inference</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Active Prediction Result Card -->
+              <div id="result-active-card" class="card glass-card result-card" style="display: none;">
+                
+                <!-- Result Banner Header -->
+                <div class="result-banner" id="result-banner-box">
+                  <div class="result-badge-icon" id="result-status-icon">
+                    <i class="fa-solid fa-check"></i>
+                  </div>
+                  <div class="result-banner-text">
+                    <span class="result-pretitle">Diagnostic Outcome</span>
+                    <h2 class="result-title" id="result-label-text">Non-Diabetic</h2>
+                    <span class="result-risk-tag" id="result-risk-tag">Low Risk Profile</span>
+                  </div>
+                </div>
+
+                <div class="result-body">
+                  
+                  <!-- Probability / Confidence Meter -->
+                  <div class="risk-gauge-box">
+                    <div class="gauge-header">
+                      <span class="gauge-title">Estimated Diabetes Probability:</span>
+                      <span class="gauge-value" id="result-prob-text">12.4%</span>
+                    </div>
+                    <div class="gauge-bar-track">
+                      <div class="gauge-bar-fill" id="result-gauge-fill" style="width: 12%;"></div>
+                    </div>
+                    <div class="gauge-labels">
+                      <span>Low Risk (0-35%)</span>
+                      <span>Moderate (35-65%)</span>
+                      <span>High Risk (65-100%)</span>
+                    </div>
+                  </div>
+
+                  <!-- Patient Parameter Summary Grid -->
+                  <div class="result-section-title">
+                    <i class="fa-solid fa-list-check"></i> Parameter Summary &amp; Analysis
+                  </div>
+                  <div class="param-summary-grid" id="result-params-grid">
+                    <!-- Dynamic Parameter Cards -->
+                  </div>
+
+                  <!-- Risk Factors Found -->
+                  <div class="risk-factors-container" id="result-risk-factors-container">
+                    <!-- Populated dynamically -->
+                  </div>
+
+                  <!-- Meta Details -->
+                  <div class="result-meta-row">
+                    <span><i class="fa-solid fa-clock"></i> Timestamp: <strong id="result-timestamp">--</strong></span>
+                    <span><i class="fa-solid fa-microchip"></i> Model: <strong id="result-model-name">SVC</strong></span>
+                  </div>
+
+                  <!-- Actions -->
+                  <div class="result-actions-row">
+                    <button class="btn btn-secondary btn-block" onclick="resetPredictionForm()">
+                      <i class="fa-solid fa-plus"></i> New Prediction
+                    </button>
+                    <button class="btn btn-outline-primary btn-block" onclick="switchTab('history')">
+                      <i class="fa-solid fa-clock-rotate-left"></i> View in History
+                    </button>
+                  </div>
+
+                  <!-- Mandatory Medical Disclaimer -->
+                  <div class="medical-disclaimer-box">
+                    <div class="disclaimer-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <div class="disclaimer-text">
+                      <strong>IMPORTANT MEDICAL DISCLAIMER:</strong>
+                      <p>This application is an educational/ML demonstration and is not a medical diagnosis. Please consult a qualified healthcare professional for medical advice.</p>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- ============================================================
+             TAB 3: PREDICTION HISTORY
+             ============================================================ -->
+        <section id="tab-history" class="tab-pane">
+          
+          <div class="card glass-card">
+            <div class="card-header">
+              <div>
+                <h2><i class="fa-solid fa-clock-rotate-left text-cyan"></i> Patient Prediction History</h2>
+                <p class="card-subtitle">Complete audit trail of all predictions evaluated during sessions</p>
+              </div>
+
+              <div class="header-actions-row">
+                <button class="btn btn-sm btn-outline-rose" onclick="clearAllHistory()">
+                  <i class="fa-solid fa-trash-can"></i> Clear History
+                </button>
+              </div>
+            </div>
+
+            <!-- Filter / Search Toolbar -->
+            <div class="history-toolbar">
+              <div class="search-input-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="history-search" class="form-control" placeholder="Search by gender, age, smoking status..." oninput="filterHistory()">
+              </div>
+
+              <div class="filter-pills">
+                <button class="filter-pill active" onclick="setHistoryFilter('all', this)">All Records (<span id="count-all">0</span>)</button>
+                <button class="filter-pill" onclick="setHistoryFilter('non-diabetic', this)">Non-Diabetic (<span id="count-nondiabetic">0</span>)</button>
+                <button class="filter-pill" onclick="setHistoryFilter('diabetic', this)">Diabetic (<span id="count-diabetic">0</span>)</button>
+              </div>
+            </div>
+
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table" id="history-table">
+                  <thead>
+                    <tr>
+                      <th>Date / Time</th>
+                      <th>Gender</th>
+                      <th>Age</th>
+                      <th>Hypertension</th>
+                      <th>Heart Disease</th>
+                      <th>Smoking</th>
+                      <th>BMI (kg/m²)</th>
+                      <th>HbA1c (%)</th>
+                      <th>Glucose (mg/dL)</th>
+                      <th>Prediction</th>
+                      <th>Risk Level</th>
+                      <th>Model</th>
+                    </tr>
+                  </thead>
+                  <tbody id="history-tbody">
+                    <tr>
+                      <td colspan="12" class="text-center text-muted py-5">
+                        <i class="fa-solid fa-spinner fa-spin"></i> Loading prediction history...
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- ============================================================
+             TAB 4: MODEL PERFORMANCE & BENCHMARKS
+             ============================================================ -->
+        <section id="tab-performance" class="tab-pane">
+          
+          <div class="performance-header">
+            <div>
+              <h2><i class="fa-solid fa-chart-column text-cyan"></i> Model Performance &amp; Evaluation</h2>
+              <p>Evaluated on the full <code>diabetes_prediction_dataset.csv</code> (80/20 train/test split with random_state=10). Accuracies are computed live at runtime.</p>
+            </div>
+            <button class="btn btn-outline-primary btn-sm" onclick="fetchMetrics(true)">
+              <i class="fa-solid fa-arrows-rotate"></i> Refresh Metrics
+            </button>
+          </div>
+
+          <!-- Top Benchmark KPI Row -->
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-icon-box icon-purple">
+                <i class="fa-solid fa-brain"></i>
+              </div>
+              <div class="metric-data">
+                <span class="metric-label">SVC Test Accuracy</span>
+                <h3 class="metric-number" id="perf-svc-test">--%</h3>
+                <span class="metric-subtext">Primary Production Model</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-icon-box icon-cyan">
+                <i class="fa-solid fa-graduation-cap"></i>
+              </div>
+              <div class="metric-data">
+                <span class="metric-label">SVC Train Accuracy</span>
+                <h3 class="metric-number" id="perf-svc-train">--%</h3>
+                <span class="metric-subtext">Generalization stability check</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-icon-box icon-emerald">
+                <i class="fa-solid fa-tree"></i>
+              </div>
+              <div class="metric-data">
+                <span class="metric-label">Random Forest Accuracy</span>
+                <h3 class="metric-number" id="perf-rf-acc">--%</h3>
+                <span class="metric-subtext">Ensemble Decision Trees (100 est.)</span>
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-icon-box icon-amber">
+                <i class="fa-solid fa-chart-line"></i>
+              </div>
+              <div class="metric-data">
+                <span class="metric-label">Linear Regression R²</span>
+                <h3 class="metric-number" id="perf-lr-r2">--</h3>
+                <span class="metric-subtext">Continuous regression metric</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Row -->
+          <div class="performance-charts-grid">
+            
+            <!-- Classification Accuracy Comparison Chart -->
+            <div class="card glass-card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title"><i class="fa-solid fa-chart-simple"></i> Classification Model Accuracies</h3>
+                  <p class="card-subtitle">Comparison across 6 classification algorithms</p>
+                </div>
+              </div>
+              <div class="card-body chart-container-md">
+                <canvas id="allModelsChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Confusion Matrix Card -->
+            <div class="card glass-card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title"><i class="fa-solid fa-table-cells-large"></i> SVC Confusion Matrix</h3>
+                  <p class="card-subtitle">True Positive vs False Positive Distribution</p>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="confusion-matrix-wrapper">
+                  <div class="cm-labels-top">
+                    <span>Predicted Non-Diabetic (0)</span>
+                    <span>Predicted Diabetic (1)</span>
+                  </div>
+                  <div class="cm-grid">
+                    <div class="cm-row-label"><span>Actual Non-Diabetic (0)</span></div>
+                    <div class="cm-cell cm-tn">
+                      <span class="cm-label">True Negative (TN)</span>
+                      <span class="cm-val" id="cm-tn-val">--</span>
+                      <span class="cm-desc">Correctly classified Healthy</span>
+                    </div>
+                    <div class="cm-cell cm-fp">
+                      <span class="cm-label">False Positive (FP)</span>
+                      <span class="cm-val" id="cm-fp-val">--</span>
+                      <span class="cm-desc">Type I Error</span>
+                    </div>
+
+                    <div class="cm-row-label"><span>Actual Diabetic (1)</span></div>
+                    <div class="cm-cell cm-fn">
+                      <span class="cm-label">False Negative (FN)</span>
+                      <span class="cm-val" id="cm-fn-val">--</span>
+                      <span class="cm-desc">Type II Error</span>
+                    </div>
+                    <div class="cm-cell cm-tp">
+                      <span class="cm-label">True Positive (TP)</span>
+                      <span class="cm-val" id="cm-tp-val">--</span>
+                      <span class="cm-desc">Correctly classified Diabetic</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Classification Report Table Card -->
+          <div class="card glass-card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title"><i class="fa-solid fa-file-lines"></i> SVC Detailed Classification Report</h3>
+                <p class="card-subtitle">Precision, Recall, F1-Score, and Support for each class</p>
+              </div>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table" id="classification-report-table">
+                  <thead>
+                    <tr>
+                      <th>Class / Metric</th>
+                      <th>Precision</th>
+                      <th>Recall</th>
+                      <th>F1-Score</th>
+                      <th>Support (Samples)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="classification-report-tbody">
+                    <tr>
+                      <td colspan="5" class="text-center text-muted py-4">Loading report...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ============================================================
+             TAB 5: ABOUT & ARCHITECTURE
+             ============================================================ -->
+        <section id="tab-about" class="tab-pane">
+          
+          <div class="about-hero-card">
+            <h2><i class="fa-solid fa-circle-nodes text-cyan"></i> About DiabetesCare AI Platform</h2>
+            <p class="lead">
+              A full-stack clinical machine-learning system built to assist healthcare researchers and practitioners in identifying early diabetes biomarker patterns.
+            </p>
+          </div>
+
+          <div class="about-grid">
+            
+            <div class="card glass-card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fa-solid fa-diagram-project"></i> Machine Learning Pipeline</h3>
+              </div>
+              <div class="card-body">
+                <div class="pipeline-step-list">
+                  <div class="pstep">
+                    <div class="pstep-num">1</div>
+                    <div class="pstep-content">
+                      <strong>Dataset Ingestion &amp; De-duplication</strong>
+                      <p>Loads <code>diabetes_prediction_dataset.csv</code> and filters duplicate rows to prevent overfitting.</p>
+                    </div>
+                  </div>
+                  <div class="pstep">
+                    <div class="pstep-num">2</div>
+                    <div class="pstep-content">
+                      <strong>Categorical Feature Encoding</strong>
+                      <p>Encodes <code>gender</code> and <code>smoking_history</code> using scikit-learn <code>LabelEncoder</code>.</p>
+                    </div>
+                  </div>
+                  <div class="pstep">
+                    <div class="pstep-num">3</div>
+                    <div class="pstep-content">
+                      <strong>StandardScaler Normalization</strong>
+                      <p>Scales feature vectors with zero mean and unit variance. The fitted scaler is reused for individual web inference.</p>
+                    </div>
+                  </div>
+                  <div class="pstep">
+                    <div class="pstep-num">4</div>
+                    <div class="pstep-content">
+                      <strong>Support Vector Classifier (SVC)</strong>
+                      <p>Trains an RBF kernel Support Vector Machine with hyperplanes maximizing clinical margin separation.</p>
+                    </div>
+                  </div>
+                  <div class="pstep">
+                    <div class="pstep-num">5</div>
+                    <div class="pstep-content">
+                      <strong>Multi-Model Benchmarking</strong>
+                      <p>Simultaneously evaluates KNN, Naive Bayes, Logistic Regression, Decision Trees, and Random Forests.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card glass-card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fa-solid fa-flask-vial"></i> Clinical Input Features</h3>
+              </div>
+              <div class="card-body">
+                <ul class="features-detail-list">
+                  <li><strong>gender:</strong> Biological sex (Female, Male, Other).</li>
+                  <li><strong>age:</strong> Chronological age in years (0 - 120).</li>
+                  <li><strong>hypertension:</strong> History of diagnosed hypertension (0 = No, 1 = Yes).</li>
+                  <li><strong>heart_disease:</strong> History of diagnosed heart disease (0 = No, 1 = Yes).</li>
+                  <li><strong>smoking_history:</strong> Smoking exposure (never, current, former, ever, not current, No Info).</li>
+                  <li><strong>bmi:</strong> Body Mass Index in kg/m² (Weight / Height²).</li>
+                  <li><strong>HbA1c_level:</strong> Glycated hemoglobin percentage (Normal: &lt;5.7%, Prediabetes: 5.7–6.4%, Diabetes: &ge;6.5%).</li>
+                  <li><strong>blood_glucose_level:</strong> Fasting or postprandial glucose in mg/dL (Normal: 70–139 mg/dL).</li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Official Medical Disclaimer Card -->
+          <div class="card glass-card disclaimer-full-card mt-4">
+            <div class="disclaimer-full-content">
+              <div class="disclaimer-icon-big">
+                <i class="fa-solid fa-shield-halved"></i>
+              </div>
+              <div>
+                <h3>Official Clinical &amp; Educational Disclaimer</h3>
+                <p>
+                  This application is an educational and machine-learning demonstration and is <strong>NOT</strong> a medical diagnosis. 
+                  Statistical predictions provided by this platform are based on statistical correlation patterns in research datasets. 
+                  Always consult a qualified, licensed medical physician or endocrinologist for clinical diagnosis, biomarker testing, and personal treatment plans.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Application Logic -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
